@@ -8,30 +8,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download project
+      - name: تحميل المشروع
         uses: actions/checkout@v4
 
-      - name: Extract project
-        run: |
-          unzip -o Derasati-Android-Project-v1.1.0.zip -d project
+      - name: فك ضغط المشروع
+        run: unzip -o Derasati-Android-Project-v1.1.0.zip -d project
 
-      - name: Set up Java
+      - name: إعداد Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle
+      - name: إعداد Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
 
-      - name: Build APK
-        working-directory: project
-        run: gradle assembleDebug
+      - name: العثور على المشروع وبناء APK
+        run: |
+          SETTINGS_FILE=$(find project -type f \( -name "settings.gradle" -o -name "settings.gradle.kts" \) -print -quit)
+          if [ -z "$SETTINGS_FILE" ]; then
+            echo "لم يتم العثور على ملف Gradle"
+            find project -maxdepth 4 -type f | head -100
+            exit 1
+          fi
+          PROJECT_DIR=$(dirname "$SETTINGS_FILE")
+          echo "Project directory: $PROJECT_DIR"
+          cd "$PROJECT_DIR"
+          gradle assembleDebug
 
-      - name: Upload APK
+      - name: رفع APK
         uses: actions/upload-artifact@v4
         with:
           name: Derasati-APK
-          path: project/app/build/outputs/apk/debug/app-debug.apk
+          path: '**/app/build/outputs/apk/debug/app-debug.apk'
