@@ -23,7 +23,7 @@ jobs:
       - name: إعداد Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: '8.13'
 
       - name: العثور على المشروع وبناء APK
         run: |
